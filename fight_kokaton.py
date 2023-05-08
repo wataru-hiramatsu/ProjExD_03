@@ -152,10 +152,11 @@ def main():
                 time.sleep(1)
                 return
 
-        if beam and bomb:
+        if beam and bomb and bird:
             if beam.get_rct().colliderect(bomb.get_rct()):
                 bomb = None
                 beam = None
+                bird.change_img(6, screen)
 
         key_lst = pg.key.get_pressed()
         if key_lst[pg.K_SPACE]:
