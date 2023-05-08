@@ -57,6 +57,18 @@ class Bird(Character):
         self._rct = self._img.get_rect()
         self._rct.center = xy
 
+        img_flip = pg.transform.flip(self._img, True, False)
+        self._imgs = {
+            (-1, 0): img_flip,
+            (-1, -1): pg.transform.rotozoom(img_flip, -45, 1),
+            (-1, 1): pg.transform.rotozoom(img_flip, 45, 1),
+            (0, -1): pg.transform.rotozoom(self._img, 90, 1),
+            (1, 0): self._img,
+            (1, -1): pg.transform.rotozoom(self._img, 45, 1),
+            (0, 1): pg.transform.rotozoom(self._img, -90, 1),
+            (1, 1): pg.transform.rotozoom(self._img, -45, 1),
+        }
+
     def change_img(self, num: int, screen: pg.Surface):
         """
         こうかとん画像を切り替え，画面に転送する
@@ -73,9 +85,15 @@ class Bird(Character):
         引数1 key_lst：押下キーの真理値リスト
         引数2 screen：画面Surface
         """
+
+        imgs_key = [0, 0]
         for k, mv in __class__._delta.items():
             if key_lst[k]:
                 self._rct.move_ip(mv)
+                imgs_key[0] += mv[0]
+                imgs_key[1] += mv[1]
+        if tuple(imgs_key) in self._imgs.keys():
+            self._img = self._imgs[tuple(imgs_key)]
         if check_bound(screen.get_rect(), self) != (True, True):
             for k, mv in __class__._delta.items():
                 if key_lst[k]:
