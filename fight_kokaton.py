@@ -133,7 +133,18 @@ def main():
     bg_img = pg.image.load("ex03/fig/pg_bg.jpg")
 
     bird = Bird(3, (900, 400))
-    bomb = Bomb((255, 0, 0), 10)
+    NUM_OF_BOMBS = 5
+    bombs: list[Bomb] = []
+    for _ in range(NUM_OF_BOMBS):
+        bombs.append(
+            Bomb(
+                (
+                    random.randint(0, 255),
+                    random.randint(0, 255),
+                    random.randint(0, 255)
+                ),
+                random.randint(10, 50))
+        )
     beam: Beam = None
 
     tmr = 0
@@ -144,19 +155,24 @@ def main():
         tmr += 1
         screen.blit(bg_img, [0, 0])
 
-        if bird and bomb:
-            if bird.get_rct().colliderect(bomb.get_rct()):
-                # ゲームオーバー時に，こうかとん画像を切り替え，1秒間表示させる
-                bird.change_img(8, screen)
-                pg.display.update()
-                time.sleep(1)
-                return
+        if bird:
+            for bomb in bombs:
+                if bird.get_rct().colliderect(bomb.get_rct()):
+                    # ゲームオーバー時に，こうかとん画像を切り替え，1秒間表示させる
+                    bird.change_img(8, screen)
+                    pg.display.update()
+                    time.sleep(1)
+                    return
 
-        if beam and bomb and bird:
-            if beam.get_rct().colliderect(bomb.get_rct()):
-                bomb = None
-                beam = None
-                bird.change_img(6, screen)
+        if beam and bird:
+            for bomb in bombs:
+                if beam.get_rct().colliderect(bomb.get_rct()):
+                    bombs.remove(bomb)
+                    beam = None
+                    break
+
+        if len(bombs) <= 0:
+            bird.change_img(6, screen)
 
         key_lst = pg.key.get_pressed()
         if key_lst[pg.K_SPACE]:
@@ -164,7 +180,7 @@ def main():
 
         if bird:
             bird.update(key_lst, screen)
-        if bomb:
+        for bomb in bombs:
             bomb.update(screen)
         if beam:
             beam.update(screen)
