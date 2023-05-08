@@ -9,22 +9,27 @@ WIDTH = 1600  # ゲームウィンドウの幅
 HEIGHT = 900  # ゲームウィンドウの高さ
 
 
-def check_bound(area: pg.Rect, obj: pg.Rect) -> tuple[bool, bool]:
+class Character:
+    def get_rct(self) -> pg.Rect:
+        return self._rct
+
+
+def check_bound(area: pg.Rect, obj: Character) -> tuple[bool, bool]:
     """
     オブジェクトが画面内か画面外かを判定し，真理値タプルを返す
     引数1 area：画面SurfaceのRect
-    引数2 obj：オブジェクト（爆弾，こうかとん）SurfaceのRect
+    引数2 obj：Characterクラス（爆弾，こうかとん）
     戻り値：横方向，縦方向のはみ出し判定結果（画面内：True／画面外：False）
     """
     yoko, tate = True, True
-    if obj.left < area.left or area.right < obj.right:  # 横方向のはみ出し判定
+    if obj.get_rct().left < area.left or area.right < obj.get_rct().right:  # 横方向のはみ出し判定
         yoko = False
-    if obj.top < area.top or area.bottom < obj.bottom:  # 縦方向のはみ出し判定
+    if obj.get_rct().top < area.top or area.bottom < obj.get_rct().bottom:  # 縦方向のはみ出し判定
         tate = False
     return yoko, tate
 
 
-class Bird:
+class Bird(Character):
     """
     ゲームキャラクター（こうかとん）に関するクラス
     """
@@ -71,14 +76,14 @@ class Bird:
         for k, mv in __class__._delta.items():
             if key_lst[k]:
                 self._rct.move_ip(mv)
-        if check_bound(screen.get_rect(), self._rct) != (True, True):
+        if check_bound(screen.get_rect(), self) != (True, True):
             for k, mv in __class__._delta.items():
                 if key_lst[k]:
                     self._rct.move_ip(-mv[0], -mv[1])
         screen.blit(self._img, self._rct)
 
 
-class Bomb:
+class Bomb(Character):
     """
     爆弾に関するクラス
     """
@@ -101,7 +106,7 @@ class Bomb:
         爆弾を速度ベクトルself._vx, self._vyに基づき移動させる
         引数 screen：画面Surface
         """
-        yoko, tate = check_bound(screen.get_rect(), self._rct)
+        yoko, tate = check_bound(screen.get_rect(), self)
         if not yoko:
             self._vx *= -1
         if not tate:
@@ -127,7 +132,7 @@ def main():
         tmr += 1
         screen.blit(bg_img, [0, 0])
 
-        if bird._rct.colliderect(bomb._rct):
+        if bird.get_rct().colliderect(bomb._rct):
             # ゲームオーバー時に，こうかとん画像を切り替え，1秒間表示させる
             bird.change_img(8, screen)
             pg.display.update()
