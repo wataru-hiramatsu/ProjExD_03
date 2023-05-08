@@ -83,6 +83,17 @@ class Bird(Character):
         screen.blit(self._img, self._rct)
 
 
+class Beam(Character):
+    def __init__(self, xy: tuple[int, int]) -> None:
+        self._img = pg.image.load("ex03/fig/beam.png")
+        self._rct = self._img.get_rect()
+        self._rct.center = xy
+
+    def update(self, screen: pg.Surface) -> None:
+        self._rct.move_ip(1, 0)
+        screen.blit(self._img, self._rct)
+
+
 class Bomb(Character):
     """
     爆弾に関するクラス
@@ -123,6 +134,7 @@ def main():
 
     bird = Bird(3, (900, 400))
     bomb = Bomb((255, 0, 0), 10)
+    beam: Beam = None
 
     tmr = 0
     while True:
@@ -132,16 +144,30 @@ def main():
         tmr += 1
         screen.blit(bg_img, [0, 0])
 
-        if bird.get_rct().colliderect(bomb._rct):
-            # ゲームオーバー時に，こうかとん画像を切り替え，1秒間表示させる
-            bird.change_img(8, screen)
-            pg.display.update()
-            time.sleep(1)
-            return
+        if bird and bomb:
+            if bird.get_rct().colliderect(bomb._rct):
+                # ゲームオーバー時に，こうかとん画像を切り替え，1秒間表示させる
+                bird.change_img(8, screen)
+                pg.display.update()
+                time.sleep(1)
+                return
+
+        if beam and bomb:
+            if beam.get_rct().colliderect(bomb.get_rct()):
+                bomb = None
+                beam = None
 
         key_lst = pg.key.get_pressed()
-        bird.update(key_lst, screen)
-        bomb.update(screen)
+        if key_lst[pg.K_SPACE]:
+            beam = Beam(bird.get_rct().midright)
+
+        if bird:
+            bird.update(key_lst, screen)
+        if bomb:
+            bomb.update(screen)
+        if beam:
+            beam.update(screen)
+
         pg.display.update()
         clock.tick(1000)
 
