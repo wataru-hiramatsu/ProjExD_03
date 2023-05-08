@@ -145,7 +145,7 @@ def main():
         screen.blit(bg_img, [0, 0])
 
         if bird and bomb:
-            if bird.get_rct().colliderect(bomb._rct):
+            if bird.get_rct().colliderect(bomb.get_rct()):
                 # ゲームオーバー時に，こうかとん画像を切り替え，1秒間表示させる
                 bird.change_img(8, screen)
                 pg.display.update()
