@@ -59,6 +59,18 @@ class Bird(Character):
         self._rct.center = xy
         self._direction = (1, 0)
 
+        img_flip = pg.transform.flip(self._img, True, False)
+        self._imgs = {
+            (-1, 0): img_flip,
+            (-1, -1): pg.transform.rotozoom(img_flip, -45, 1),
+            (-1, 1): pg.transform.rotozoom(img_flip, 45, 1),
+            (0, -1): pg.transform.rotozoom(self._img, 90, 1),
+            (1, 0): self._img,
+            (1, -1): pg.transform.rotozoom(self._img, 45, 1),
+            (0, 1): pg.transform.rotozoom(self._img, -90, 1),
+            (1, 1): pg.transform.rotozoom(self._img, -45, 1),
+        }
+
     def change_img(self, num: int, screen: pg.Surface):
         """
         こうかとん画像を切り替え，画面に転送する
@@ -86,6 +98,9 @@ class Bird(Character):
                 direction_tmp[1] += mv[1]
         if not (direction_tmp[0] == direction_tmp[1] == 0):
             self._direction = tuple(direction_tmp)
+            if self._direction in self._imgs:
+                self._img = self._imgs[self._direction]
+
         if check_bound(screen.get_rect(), self) != (True, True):
             for k, mv in __class__._delta.items():
                 if key_lst[k]:
