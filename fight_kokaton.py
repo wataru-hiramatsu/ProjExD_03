@@ -197,16 +197,10 @@ def main():
     NUM_OF_BOMBS = 5
     INVINCIBLE_TIME = 1000
     bombs: list[Bomb] = []
+    bomb_colors = [(255, 0, 0), (255, 255, 0), (0, 255, 255),
+                   (0, 0, 255), (255, 0, 255), (255, 255, 255)]
     for _ in range(NUM_OF_BOMBS):
-        bombs.append(
-            Bomb(
-                (
-                    random.randint(0, 255),
-                    random.randint(0, 255),
-                    random.randint(0, 255)
-                ),
-                random.randint(10, 50))
-        )
+        bombs.append(Bomb(random.choice(bomb_colors), random.randint(10, 50)))
     beams: list[Beam] = []
     explosions: list[Explosion] = []
     score = 0
