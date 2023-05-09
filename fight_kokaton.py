@@ -84,7 +84,7 @@ class Bird(Character):
     def get_direction(self) -> tuple[int, int]:
         return self._direction
 
-    def update(self, key_lst: list[bool], screen: pg.Surface):
+    def update(self, key_lst: list[bool], screen: pg.Surface, isVisible=True):
         """
         押下キーに応じてこうかとんを移動させる
         引数1 key_lst：押下キーの真理値リスト
@@ -105,7 +105,8 @@ class Bird(Character):
             for k, mv in __class__._delta.items():
                 if key_lst[k]:
                     self._rct.move_ip(-mv[0], -mv[1])
-        screen.blit(self._img, self._rct)
+        if isVisible:
+            screen.blit(self._img, self._rct)
 
 
 class Beam(Character):
@@ -194,6 +195,7 @@ def main():
 
     bird = Bird(3, (900, 400))
     NUM_OF_BOMBS = 5
+    INVINCIBLE_TIME = 1000
     bombs: list[Bomb] = []
     for _ in range(NUM_OF_BOMBS):
         bombs.append(
@@ -220,13 +222,14 @@ def main():
         screen.blit(bg_img, [0, 0])
 
         if bird:
-            for bomb in bombs:
-                if bird.get_rct().colliderect(bomb.get_rct()):
-                    # ゲームオーバー時に，こうかとん画像を切り替え，1秒間表示させる
-                    bird.change_img(8, screen)
-                    pg.display.update()
-                    time.sleep(1)
-                    return
+            if tmr > INVINCIBLE_TIME:
+                for bomb in bombs:
+                    if bird.get_rct().colliderect(bomb.get_rct()):
+                        # ゲームオーバー時に，こうかとん画像を切り替え，1秒間表示させる
+                        bird.change_img(8, screen)
+                        pg.display.update()
+                        time.sleep(1)
+                        return
 
             if len(bombs) <= 0:
                 bird.change_img(6, screen)
@@ -245,7 +248,11 @@ def main():
 
         key_lst = pg.key.get_pressed()
         if bird:
-            bird.update(key_lst, screen)
+            if tmr < INVINCIBLE_TIME:
+                isVisible = (tmr // 10) % 2 == 0
+                bird.update(key_lst, screen, isVisible=isVisible)
+            else:
+                bird.update(key_lst, screen)
         for bomb in bombs:
             bomb.update(screen)
         for explosion in explosions:
