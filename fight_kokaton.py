@@ -1,6 +1,7 @@
 import random
 import sys
 import time
+import math
 
 import pygame as pg
 
@@ -56,6 +57,7 @@ class Bird(Character):
         )
         self._rct = self._img.get_rect()
         self._rct.center = xy
+        self._direction = (1, 0)
 
     def change_img(self, num: int, screen: pg.Surface):
         """
@@ -67,15 +69,23 @@ class Bird(Character):
             pg.image.load(f"ex03/fig/{num}.png"), 0, 2.0)
         screen.blit(self._img, self._rct)
 
+    def get_direction(self) -> tuple[int, int]:
+        return self._direction
+
     def update(self, key_lst: list[bool], screen: pg.Surface):
         """
         押下キーに応じてこうかとんを移動させる
         引数1 key_lst：押下キーの真理値リスト
         引数2 screen：画面Surface
         """
+        direction_tmp = [0, 0]
         for k, mv in __class__._delta.items():
             if key_lst[k]:
                 self._rct.move_ip(mv)
+                direction_tmp[0] += mv[0]
+                direction_tmp[1] += mv[1]
+        if not (direction_tmp[0] == direction_tmp[1] == 0):
+            self._direction = tuple(direction_tmp)
         if check_bound(screen.get_rect(), self) != (True, True):
             for k, mv in __class__._delta.items():
                 if key_lst[k]:
@@ -84,13 +94,17 @@ class Bird(Character):
 
 
 class Beam(Character):
-    def __init__(self, xy: tuple[int, int]) -> None:
-        self._img = pg.image.load("ex03/fig/beam.png")
+    def __init__(self, bird: Bird) -> None:
+        self._direction = bird.get_direction()
+        self._img = pg.transform.rotozoom(
+            pg.image.load("ex03/fig/beam.png"),
+            math.degrees(math.atan2(-self._direction[1], self._direction[0])),
+            1)
         self._rct = self._img.get_rect()
-        self._rct.center = xy
+        self._rct.center = bird.get_rct().midright
 
     def update(self, screen: pg.Surface) -> None:
-        self._rct.move_ip(1, 0)
+        self._rct.move_ip(self._direction)
         screen.blit(self._img, self._rct)
 
 
@@ -193,7 +207,7 @@ def main():
 
         key_lst = pg.key.get_pressed()
         if key_lst[pg.K_SPACE]:
-            beam = Beam(bird.get_rct().midright)
+            beam = Beam(bird)
 
         if bird:
             bird.update(key_lst, screen)
