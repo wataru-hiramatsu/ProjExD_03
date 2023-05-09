@@ -145,18 +145,19 @@ class Bomb(Character):
     爆弾に関するクラス
     """
 
-    def __init__(self, color: tuple[int, int, int], rad: int):
+    def __init__(self, color: tuple[int, int, int], rad: int, dir: tuple[int, int]):
         """
         引数に基づき爆弾円Surfaceを生成する
         引数1 color：爆弾円の色タプル
         引数2 rad：爆弾円の半径
+        引数3 dir：移動方向
         """
         self._img = pg.Surface((2*rad, 2*rad))
         pg.draw.circle(self._img, color, (rad, rad), rad)
         self._img.set_colorkey((0, 0, 0))
         self._rct = self._img.get_rect()
         self._rct.center = random.randint(0, WIDTH), random.randint(0, HEIGHT)
-        self._vx, self._vy = +1, +1
+        self._vx, self._vy = dir[0], dir[1]
 
     def update(self, screen: pg.Surface):
         """
@@ -199,8 +200,13 @@ def main():
     bombs: list[Bomb] = []
     bomb_colors = [(255, 0, 0), (255, 255, 0), (0, 255, 255),
                    (0, 0, 255), (255, 0, 255), (255, 255, 255)]
+    bomb_dir = [-1, 1]
     for _ in range(NUM_OF_BOMBS):
-        bombs.append(Bomb(random.choice(bomb_colors), random.randint(10, 50)))
+        bombs.append(
+            Bomb(random.choice(bomb_colors),
+                 random.randint(10, 50),
+                 (random.choice(bomb_dir), random.choice(bomb_dir)))
+        )
     beams: list[Beam] = []
     explosions: list[Explosion] = []
     score = 0
