@@ -91,6 +91,7 @@ class Bird(Character):
         引数2 screen：画面Surface
         """
         direction_tmp = [0, 0]
+        # こうかとんの移動方向を計算して格納
         for k, mv in __class__._delta.items():
             if key_lst[k]:
                 self._rct.move_ip(mv)
@@ -98,6 +99,7 @@ class Bird(Character):
                 direction_tmp[1] += mv[1]
         if not (direction_tmp[0] == direction_tmp[1] == 0):
             self._direction = tuple(direction_tmp)
+            # こうかとんの移動方向に応じて画像を変更
             if self._direction in self._imgs:
                 self._img = self._imgs[self._direction]
 
