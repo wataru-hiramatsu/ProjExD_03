@@ -176,6 +176,7 @@ def main():
         )
     beam: Beam = None
     explosions: list[Explosion] = []
+    score = 0
 
     tmr = 0
     while True:
@@ -200,6 +201,7 @@ def main():
                     explosions.append(Explosion(bomb.get_rct().center))
                     bombs.remove(bomb)
                     beam = None
+                    score += 1
                     break
 
         if len(bombs) <= 0:
@@ -219,6 +221,13 @@ def main():
                 explosions.remove(explosion)
         if beam:
             beam.update(screen)
+
+        font = pg.font.Font(None, 80)
+        screen.blit(
+            font.render(
+                "Score: " + str(score), True, (0, 0, 0)),
+            [0, 0]
+        )
 
         pg.display.update()
         clock.tick(1000)
