@@ -174,7 +174,7 @@ def main():
                 ),
                 random.randint(10, 50))
         )
-    beam: Beam = None
+    beams: list[Beam] = []
     explosions: list[Explosion] = []
     score = 0
 
@@ -183,6 +183,8 @@ def main():
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 return
+            if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
+                beams.append(Beam(bird))
         tmr += 1
         screen.blit(bg_img, [0, 0])
 
@@ -195,22 +197,20 @@ def main():
                     time.sleep(1)
                     return
 
-        if beam and bird:
+        if bird:
             for bomb in bombs:
-                if beam.get_rct().colliderect(bomb.get_rct()):
-                    explosions.append(Explosion(bomb.get_rct().center))
-                    bombs.remove(bomb)
-                    beam = None
-                    score += 1
-                    break
+                for beam in beams:
+                    if beam.get_rct().colliderect(bomb.get_rct()):
+                        explosions.append(Explosion(bomb.get_rct().center))
+                        bombs.remove(bomb)
+                        beams.remove(beam)
+                        score += 1
+                        break
 
         if len(bombs) <= 0:
             bird.change_img(6, screen)
 
         key_lst = pg.key.get_pressed()
-        if key_lst[pg.K_SPACE]:
-            beam = Beam(bird)
-
         if bird:
             bird.update(key_lst, screen)
         for bomb in bombs:
@@ -219,7 +219,11 @@ def main():
             explosion.update(screen)
             if explosion._life < 0:
                 explosions.remove(explosion)
-        if beam:
+        for beam in beams:
+            tmp = check_bound(screen.get_rect(), beam)
+            if not tmp[0] or not tmp[1]:
+                beams.remove(beam)
+                continue
             beam.update(screen)
 
         font = pg.font.Font(None, 80)
