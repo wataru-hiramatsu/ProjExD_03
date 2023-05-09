@@ -197,6 +197,11 @@ def main():
                     time.sleep(1)
                     return
 
+            if len(bombs) <= 0:
+                bird.change_img(6, screen)
+                pg.display.update()
+                continue
+
         if bird:
             for bomb in bombs:
                 for beam in beams:
@@ -206,9 +211,6 @@ def main():
                         beams.remove(beam)
                         score += 1
                         break
-
-        if len(bombs) <= 0:
-            bird.change_img(6, screen)
 
         key_lst = pg.key.get_pressed()
         if bird:
