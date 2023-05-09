@@ -116,7 +116,23 @@ class Beam(Character):
             math.degrees(math.atan2(-self._direction[1], self._direction[0])),
             1)
         self._rct = self._img.get_rect()
-        self._rct.center = bird.get_rct().midright
+        # TODO: もうちょっと綺麗に書く
+        if bird._direction == (1, 0):
+            self._rct.center = bird.get_rct().midright
+        if bird._direction == (1, -1):
+            self._rct.center = bird.get_rct().topright
+        if bird._direction == (0, -1):
+            self._rct.center = bird.get_rct().midtop
+        if bird._direction == (-1, -1):
+            self._rct.center = bird.get_rct().topleft
+        if bird._direction == (-1, 0):
+            self._rct.center = bird.get_rct().midleft
+        if bird._direction == (-1, 1):
+            self._rct.center = bird.get_rct().bottomleft
+        if bird._direction == (0, 1):
+            self._rct.center = bird.get_rct().midbottom
+        if bird._direction == (1, 1):
+            self._rct.center = bird.get_rct().bottomright
 
     def update(self, screen: pg.Surface) -> None:
         self._rct.move_ip(self._direction)
